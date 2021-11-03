@@ -13,24 +13,32 @@
 import MapSVG from "@/assets/images/map.svg";
 import Table from "@/assets/images/workPlace.svg";
 import * as d3 from "d3";
-import tables from "@/assets/data/tables.json";
-import legend from "@/assets/data/legend.json";
 
 export default {
   components: {
     MapSVG,
     Table,
   },
+  props: {
+    tables: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+    legend: {
+      type: Array,
+      default() {
+        return [];
+      },
+    },
+  },
   data() {
     return {
       svg: null,
       g: null,
       tableSVG: null,
-      tables: [],
     };
-  },
-  created() {
-    this.tables = tables;
   },
   mounted() {
     this.svg = d3.select(this.$refs.svg);
@@ -55,7 +63,7 @@ export default {
           .attr("group_id", table.group_id)
           .classed("table", true)
           .html(this.tableSVG.html());
-        const seatColor = legend.find(
+        const seatColor = this.legend.find(
           (it) => it.group_id === table.group_id
         )?.color;
         seat.attr("fill", seatColor ?? "transparent");

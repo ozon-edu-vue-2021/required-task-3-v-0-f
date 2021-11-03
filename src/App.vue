@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <div class="office">
-      <Map />
-      <SideMenu />
+      <Map :tables="tables" :legend="legend" />
+      <SideMenu :legend="legend" />
     </div>
   </div>
 </template>
@@ -10,12 +10,29 @@
 <script>
 import Map from "./components/Map.vue";
 import SideMenu from "./components/SideMenu.vue";
+import tables from "@/assets/data/tables.json";
+import legend from "@/assets/data/legend.json";
 
 export default {
   name: "App",
   components: {
     Map,
     SideMenu,
+  },
+  data() {
+    return {
+      tables: [],
+      legend: [],
+    };
+  },
+  created() {
+    this.tables = tables;
+    const counts = this.tables.reduce((totals, table) => {
+      return {...totals, [table.group_id]: (totals[table.group_id] || 0) + 1};
+    }, {});
+    this.legend = legend.map((entry) => {
+      return {...entry, counter: counts[entry.group_id]};
+    });
   },
 };
 </script>
