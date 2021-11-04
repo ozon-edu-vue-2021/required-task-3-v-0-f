@@ -5,17 +5,21 @@
     </div>
     <div class="person__info">
       <div class="person__info-name">
-        <b>{{ person.name }} ({{ person.age }})</b>
+        <b>{{ person.name }}, {{ person.age }}</b>
       </div>
-
-      <div class="person__info-email">Почта: {{ person.email }}</div>
-      <div class="person__info-email">Дата регистрации: {{ formatedDate }}</div>
-      <div class="person__info-about">О себе: {{ person.about }}</div>
+      <div class="person__info-name">{{ person.groupName }}</div>
+      <div class="person__info-email">✉ {{ person.email }}</div>
+      <div class="person__info-email">
+        <b>Дата регистрации:</b> {{ formatedDate }}
+      </div>
+      <div class="person__info-about"><b>О себе:</b> {{ person.about }}</div>
     </div>
   </div>
 </template>
 
 <script>
+import { format } from "date-fns";
+
 export default {
   props: {
     person: {
@@ -25,7 +29,7 @@ export default {
   },
   computed: {
     formatedDate() {
-      return this.person.registered;
+      return format(new Date(this.person.registered), "dd-MM-yyyy");
     },
   },
 };
@@ -33,23 +37,30 @@ export default {
 
 <style scoped>
 .person {
-  display: grid;
-  grid-template-columns: 50px 1fr;
-  grid-gap: 8px;
+  display: flex;
+  flex-direction: column;
 }
 
 .person__photo img {
-  height: 50px;
-  width: 50px;
+  height: auto;
+  width: 100%;
   border-radius: 50%;
 }
 
 .person__info {
   display: grid;
   grid-gap: 8px;
+  margin-top: 20px;
+  font-size: 20px;
 }
 
 .person__info-name {
+  margin-bottom: 10px;
+}
+
+.person__info-email {
+  display: flex;
+  flex-direction: column;
   margin-bottom: 10px;
 }
 </style>

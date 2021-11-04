@@ -6,8 +6,8 @@
           <h3>Информация</h3>
         </template>
         <template v-else>
-          <div class="action">
-            <div class="arrow" @click="closeProfile"></div>
+          <div class="action" @click="closeProfile">
+            <div class="arrow"></div>
           </div>
           <h3>Профиль</h3>
         </template>
@@ -32,20 +32,20 @@
           <span v-else class="legend--empty"> Список пуст </span>
         </div>
         <div class="legend__chart">
-          <Doughnut ref="chart" />
+          <Chart :data="legendChartData" />
         </div>
       </div>
       <div v-else class="profile">
         <div v-if="!person" class="profile__empty">Место пустое</div>
 
-        <PersonCard :person="person" />
+        <PersonCard v-else :person="person" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import {Doughnut} from "vue-chartjs";
+import Chart from "./SideMenu/Chart";
 import Draggable from "vuedraggable";
 import LegendItem from "./SideMenu/LegendItem.vue";
 import PersonCard from "./SideMenu/PersonCard.vue";
@@ -60,12 +60,6 @@ export default {
       type: Object,
       default: null,
     },
-    tables: {
-      type: Array,
-      default() {
-        return [];
-      },
-    },
     legend: {
       type: Array,
       default() {
@@ -77,7 +71,7 @@ export default {
     LegendItem,
     PersonCard,
     Draggable,
-    Doughnut,
+    Chart,
   },
   data() {
     return {
@@ -87,31 +81,23 @@ export default {
   created() {
     this.legendData = [...this.legend];
   },
-  mounted() {
-    this.makeChart();
-  },
-  methods: {
-    closeProfile() {
-      this.$emit("update:isUserOpenned", false);
-    },
-    makeChart() {
-      const legendChartData = {
+  computed: {
+    legendChartData: function () {
+      return {
         labels: this.legend.map((it) => it.text),
         datasets: [
           {
             label: "Легенда",
-            backgroundColor: this.legend.map((legendItem) => legendItem.color),
+            backgroundColor: this.legend.map((item) => item.color),
             data: this.legend.map((legendItem) => legendItem.counter),
           },
         ],
       };
-      const options = {
-        borderWidth: "10px",
-        legend: {
-          display: false,
-        },
-      };
-      this.$refs.chart.renderChart(legendChartData, options);
+    },
+  },
+  methods: {
+    closeProfile() {
+      this.$emit("closeProfile");
     },
   },
 };

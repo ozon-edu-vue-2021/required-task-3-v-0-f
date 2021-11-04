@@ -36,38 +36,49 @@ export default {
   data() {
     return {
       svg: null,
-      g: null,
       tableSVG: null,
     };
   },
   mounted() {
-    this.svg = d3.select(this.$refs.svg);
-    this.g = this.svg.select("g");
-    this.tableSVG = d3.select(this.$refs.table);
+    this.svg = d3.select(this.$refs.svg).select("g");
+    this.tableSVG = d3.select(this.$refs.table).select("g");
     this.drawTables();
+  },
+  computed: {
+    groupColors: function () {
+      return Object.fromEntries(
+        this.legend.map((group) => [group.group_id, group.color])
+      );
+    },
   },
   methods: {
     drawTables() {
-      const svgTablesGroupPlace = this.g
+      const svgTablesGroupPlace = this.svg
         .append("g")
-        .classed("groupPlaces", true);
+        .classed("groupPlaces", true)
+        .node();
       this.tables.map((table) => {
-        const targetSeat = svgTablesGroupPlace
-          .append("g")
-          .attr("transform", `translate(${table.x}, ${table.y}) scale(0.5)`)
-          .attr("id", table._id)
-          .classed("employer-place", true);
-        const seat = targetSeat
-          .append("g")
-          .attr("transform", `rotate(${table.rotate || 0})`)
-          .attr("group_id", table.group_id)
-          .classed("table", true)
-          .html(this.tableSVG.html());
-        const seatColor = this.legend.find(
-          (it) => it.group_id === table.group_id
-        )?.color;
-        seat.attr("fill", seatColor ?? "transparent");
+        const tableClone = this.tableSVG.node().cloneNode(true);
+        const tableAttributes = {
+          transform: [
+            `translate(${table.x}, ${table.y})`,
+            `scale(0.5)`,
+            `rotate(${table.rotate || 0})`,
+          ].join(","),
+          id: table._id,
+          group_id: table.group_id,
+          fill: this.groupColors[table.group_id] ?? "transparent",
+        };
+        Object.entries(tableAttributes).forEach(([attr, value]) => {
+          tableClone.setAttribute(attr, value);
+        });
+        tableClone.onclick = this.selectTable;
+        svgTablesGroupPlace.appendChild(tableClone);
       });
+    },
+    selectTable: function (event) {
+      const tableId = Number(event.target.parentNode.getAttribute("id"));
+      this.$emit("tableSelected", tableId);
     },
   },
 };
